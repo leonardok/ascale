@@ -1,12 +1,10 @@
 package me.leok.scaleduino;
 
-import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.RotateDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
@@ -14,23 +12,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-import bolts.Continuation;
-import bolts.Task;
-import bolts.TaskCompletionSource;
+import me.leok.scaleduino.components.PausableChronometer;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,11 +44,15 @@ public class MainActivity extends AppCompatActivity {
     volatile boolean stopWorker;
 
 
-
+    private long timeWhenStopped = 0;
 
     TextView title;
     TextView weightText;
     ProgressBar weightProgressBar;
+    PausableChronometer chrono;
+
+    Button resetChrono;
+    Button startChrono;
 
     ConstraintLayout loadingLayout;
     ConstraintLayout weightingLayout;
@@ -69,19 +67,47 @@ public class MainActivity extends AppCompatActivity {
         weightProgressBar = (ProgressBar) findViewById(R.id.weightProgressBar);
         weightText = (TextView) findViewById(R.id.weightText);
         title = (TextView) findViewById(R.id.title);
+        chrono = (PausableChronometer) findViewById(R.id.chronometer);
+        resetChrono = (Button) findViewById(R.id.reset);
+        startChrono = (Button) findViewById(R.id.start);
 
         weightingLayout = (ConstraintLayout) findViewById(R.id.weightingLayout);
         loadingLayout = (ConstraintLayout) findViewById(R.id.loadingLayout);
+
         weightingLayout.setVisibility(View.INVISIBLE);
+        //loadingLayout.setVisibility(View.INVISIBLE);
 
         weightProgressBar.setScaleY(8f);
+
+        startChrono.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                chrono.start();
+            }
+        });
+
+        resetChrono.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                chrono.reset();
+            }
+        });
 
 
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground( final Void ... params ) {
                 // something you know that will take a few seconds
-                findScale();
+
+                while(mmDevice == null) {
+                    findScale();
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 try {
                     connect2scale();
@@ -188,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                                             try {
                                                 ScaleData scaleData = gson.fromJson(data, ScaleData.class);
 
-                                                weightText.setText(String.format("%sg", String.valueOf((int) scaleData.weight)));
+                                                weightText.setText(String.format("%sg", String.format("%.2f", scaleData.weight)));
                                                 weightProgressBar.setProgress((int) scaleData.weight);
                                             }
                                             catch (Exception e) {}
