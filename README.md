@@ -85,7 +85,9 @@ encontrados facilmente no Mercado Livre e nenhuma solda é necessária.
 
 - arduino (R$ 20)
 - driver para celula de carga, chamado HX711 (R$ 8)
-- célula de carga de 2 kg (pode ser usado outras, mas muda a precisão) (R$ 24)
+- célula de carga de 2 kg (R$ 24) (pode ser usado de outras cargas, mas muda a precisão)
+  para o meu projeto comprei uma balanca chinesa de R$ 25 reais, então aproveitei o
+  chassi da balanca
 - módulo bluetooth (HC-05 ou HC-06) (R$ 25)
 
 Total em em torno de R$ 80.
