@@ -18,6 +18,9 @@ Inside this repository you will find tree parts:
 - [TODO: ios project]
 
 
+![Android App](images/android_screenshot.png)
+
+
 ## Bill of materials
 
 - Arduino.  I have used a [Freaduino Uno](https://www.elecfreaks.com/wiki/index.php?title=Freaduino_UNO)
@@ -78,7 +81,9 @@ The `tare` function is through sending `"t"` to the client outstream channel.
 Para este projeto você vai precisar dos itens abaixo. Todos eles podem ser
 encontrados facilmente no Mercado Livre e nenhuma solda é necessária.
 
-- arduino
-- driver para celula de carga, chamado HX711
-- célula de carga de 2 kg (pode ser usado outras, mas muda a precisão)
-- módulo bluetooth (HC-05 ou HC-06)
+- arduino (R$ 20)
+- driver para celula de carga, chamado HX711 (R$ 8)
+- célula de carga de 2 kg (pode ser usado outras, mas muda a precisão) (R$ 24)
+- módulo bluetooth (HC-05 ou HC-06) (R$ 25)
+
+Total em em torno de R$ 80.
