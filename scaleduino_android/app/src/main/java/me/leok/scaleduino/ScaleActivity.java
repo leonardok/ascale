@@ -19,6 +19,8 @@ public class ScaleActivity extends FragmentActivity {
     private OutputStream mOutputStream;
     private InputStream mInputStream;
 
+    public ScaleBluetoothSerial scale;
+
     public BluetoothDevice getDevice() {
         return mDevice;
     }

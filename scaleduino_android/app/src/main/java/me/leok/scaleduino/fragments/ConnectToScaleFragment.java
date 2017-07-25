@@ -37,13 +37,14 @@ public class ConnectToScaleFragment extends Fragment {
 
         final ScaleActivity thisActivity = (ScaleActivity) getActivity();
 
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground( final Void ... params ) {
                 // something you know that will take a few seconds
 
                 try {
-                    thisActivity.connect2scale();
+                    thisActivity.scale.connect();
                 } catch (IOException e) {
                     Log.v(TAG, "Failed to connect to scale! Reason: " + e.toString());
 

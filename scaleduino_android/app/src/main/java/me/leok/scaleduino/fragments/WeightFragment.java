@@ -1,12 +1,10 @@
 package me.leok.scaleduino.fragments;
 
 
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +15,11 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import me.leok.scaleduino.R;
 import me.leok.scaleduino.ScaleActivity;
+import me.leok.scaleduino.ScaleBluetoothSerial;
 import me.leok.scaleduino.ScaleData;
 import me.leok.scaleduino.components.PausableChronometer;
 
@@ -105,9 +102,9 @@ public class WeightFragment extends Fragment {
 
         tare.setOnClickListener(new Button.OnClickListener(){
             @Override
-            public void onClick(View v) {
+            public void onClick(View v){
                 try {
-                    mThisActivity.getOutputStream().write("t".getBytes());
+                    mThisActivity.scale.tare();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -117,79 +114,101 @@ public class WeightFragment extends Fragment {
         /*
          * Starts listening for serial data from BT!
          */
-        beginListenForData();
+        mThisActivity.scale.listen();
+        mThisActivity.scale.setmOnDataReceivedListener(new ScaleBluetoothSerial.OnDataReceivedListener() {
+            @Override
+            public void onDataReceived(final String data) {
+                final Gson gson = new Gson();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ScaleData scaleData = new ScaleData(0, "");
+
+                        try {
+                            scaleData = gson.fromJson(data, ScaleData.class);
+                        }
+                        catch (Exception e) {
+                            Log.w(TAG, "Error while deserializing JSON: " + e.toString());
+                        }
+
+                        weightText.setText(String.format("%sg", String.format("%.1f", scaleData.weight)));
+                        weightProgressBar.setProgress((int) scaleData.weight);
+                    }
+                });
+            }
+        });
 
         return view;
     }
 
 
-    void beginListenForData()
-    {
-        final Gson gson = new Gson();
-        final Handler handler = new Handler();
-        final byte delimiter = 10; //This is the ASCII code for a newline character
-
-        BluetoothDevice mDevice = mThisActivity.getDevice();
-        BluetoothSocket mSocket = mThisActivity.getSocket();
-        OutputStream mOutputStream = mThisActivity.getOutputStream();
-        final InputStream mInputStream = mThisActivity.getInputStream();
-
-        stopWorker = false;
-        readBufferPosition = 0;
-        readBuffer = new byte[1024];
-        workerThread = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                while(!Thread.currentThread().isInterrupted() && !stopWorker)
-                {
-                    try
-                    {
-                        int bytesAvailable = mInputStream.available();
-                        if(bytesAvailable > 0)
-                        {
-                            byte[] packetBytes = new byte[bytesAvailable];
-                            mInputStream.read(packetBytes);
-                            for(int i=0;i<bytesAvailable;i++)
-                            {
-                                byte b = packetBytes[i];
-                                if(b == delimiter)
-                                {
-                                    byte[] encodedBytes = new byte[readBufferPosition];
-                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-                                    final String data = new String(encodedBytes, "US-ASCII");
-                                    readBufferPosition = 0;
-
-                                    handler.post(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            // Log.v(TAG, data.toString());
-                                            try {
-                                                ScaleData scaleData = gson.fromJson(data, ScaleData.class);
-
-                                                weightText.setText(String.format("%sg", String.format("%.2f", scaleData.weight)));
-                                                weightProgressBar.setProgress((int) scaleData.weight);
-                                            }
-                                            catch (Exception e) {}
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    readBuffer[readBufferPosition++] = b;
-                                }
-                            }
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        stopWorker = true;
-                    }
-                }
-            }
-        });
-
-        workerThread.start();
-    }
+//    void beginListenForData()
+//    {
+//        final Gson gson = new Gson();
+//        final Handler handler = new Handler();
+//        final byte delimiter = 10; //This is the ASCII code for a newline character
+//
+//        BluetoothDevice mDevice = mThisActivity.getDevice();
+//        BluetoothSocket mSocket = mThisActivity.getSocket();
+//        OutputStream mOutputStream = mThisActivity.getOutputStream();
+//        final InputStream mInputStream = mThisActivity.getInputStream();
+//
+//        stopWorker = false;
+//        readBufferPosition = 0;
+//        readBuffer = new byte[1024];
+//        workerThread = new Thread(new Runnable()
+//        {
+//            public void run()
+//            {
+//                while(!Thread.currentThread().isInterrupted() && !stopWorker)
+//                {
+//                    try
+//                    {
+//                        int bytesAvailable = mInputStream.available();
+//                        if(bytesAvailable > 0)
+//                        {
+//                            byte[] packetBytes = new byte[bytesAvailable];
+//                            mInputStream.read(packetBytes);
+//                            for(int i=0;i<bytesAvailable;i++)
+//                            {
+//                                byte b = packetBytes[i];
+//                                if(b == delimiter)
+//                                {
+//                                    byte[] encodedBytes = new byte[readBufferPosition];
+//                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+//                                    final String data = new String(encodedBytes, "US-ASCII");
+//                                    readBufferPosition = 0;
+//
+//                                    handler.post(new Runnable()
+//                                    {
+//                                        public void run()
+//                                        {
+//                                            // Log.v(TAG, data.toString());
+//                                            try {
+//                                                ScaleData scaleData = gson.fromJson(data, ScaleData.class);
+//
+//                                                weightText.setText(String.format("%sg", String.format("%.2f", scaleData.weight)));
+//                                                weightProgressBar.setProgress((int) scaleData.weight);
+//                                            }
+//                                            catch (Exception e) {}
+//                                        }
+//                                    });
+//                                }
+//                                else
+//                                {
+//                                    readBuffer[readBufferPosition++] = b;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    catch (IOException ex)
+//                    {
+//                        stopWorker = true;
+//                    }
+//                }
+//            }
+//        });
+//
+//        workerThread.start();
+//    }
 }

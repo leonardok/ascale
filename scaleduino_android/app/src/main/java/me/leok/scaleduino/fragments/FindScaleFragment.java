@@ -20,6 +20,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Set;
 
+import me.leok.scaleduino.ScaleBluetoothSerial;
 import me.leok.scaleduino.ScaleActivity;
 import me.leok.scaleduino.R;
 import me.leok.scaleduino.adapters.BluetoothDevicesAdapter;
@@ -94,7 +95,7 @@ public class FindScaleFragment extends Fragment {
 
                 // set the scale device
                 ScaleActivity thisActivity = (ScaleActivity) getActivity();
-                thisActivity.setDevice(device);
+                thisActivity.scale = new ScaleBluetoothSerial(device);
 
                 /*
                  * Change fragments!!

@@ -74,24 +74,24 @@ void loop() {
   samples++;
 
   float smotthed_load_value = myRA.getAverage();
-
-//  Serial.print("Reading: ");
-//  Serial.print(smotthed_load_value, 5);
-//  Serial.print(" kg"); //Change this to kg and re-adjust the calibration factor if you follow SI units like a sane person
-//  Serial.print(" calibration_factor: ");
-//  Serial.print(calibration_factor);
-//  Serial.println();
-
-//  float load_cell_data = scale.get_units();
-  // float load_cell_data = 200.1003f;
   
   String data = String("{") + "'weight': '" + String(smotthed_load_value, 4) + "', 'unit': 'g'}";
   BT.println(data);
   Serial.println(data);
 
-  if(Serial.available())
-  {
+  // read bluetooth commands
+  if (BT.available()) {
+    char command = BT.read();
+    
+    if(command == 't') {
+      Serial.println("tared");      
+      scale.tare();  //Reset the scale to zero
+    }
+  }
+
+  if(Serial.available()) {
     char temp = Serial.read();
+    
     if(temp == '+' || temp == 'a')
       calibration_factor += 10;
     else if(temp == '-' || temp == 'z')
@@ -108,8 +108,10 @@ void loop() {
       calibration_factor += 10000;  
     else if(temp == 'v')
       calibration_factor -= 10000;  
-    else if(temp == 't')
+    else if(temp == 't') {
+      Serial.println("tared");
       scale.tare();  //Reset the scale to zero
+    }
   }
 }
 //=============================================================================================
