@@ -18,8 +18,9 @@ Inside this repository you will find tree parts:
 - [TODO: ios project]
 
 
-![Built Scale](images/built_scale_internal.png)
 ![Android App](images/android_screenshot.png)
+![Built Scale](images/built_scale_internal.png)
+![Android App](images/full_built_scale.png)
 
 
 ## Bill of materials
