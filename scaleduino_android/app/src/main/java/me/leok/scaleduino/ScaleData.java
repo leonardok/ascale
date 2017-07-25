@@ -5,8 +5,8 @@ package me.leok.scaleduino;
  */
 
 public class ScaleData {
-    float weight;
-    String version;
+    public float weight;
+    public String version;
 
     public ScaleData(float weight, String version) {
         this.weight = weight;

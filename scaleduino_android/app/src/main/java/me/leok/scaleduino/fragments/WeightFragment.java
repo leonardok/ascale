@@ -1,12 +1,16 @@
-package me.leok.scaleduino;
+package me.leok.scaleduino.fragments;
+
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,16 +21,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-public class WeightActivity extends AppCompatActivity {
+import me.leok.scaleduino.R;
+import me.leok.scaleduino.ScaleActivity;
+import me.leok.scaleduino.ScaleData;
+import me.leok.scaleduino.components.PausableChronometer;
 
-    private static final String TAG = "WeightActivity";
-    private Context context;
-    private ProgressBar weightProgressBar;
-    private TextView weightText;
-    private BluetoothSocket mSocket;
-    private BluetoothDevice mDevice;
-    private OutputStream mOutputStream;
-    private InputStream mInputStream;
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class WeightFragment extends Fragment {
+
+    private static final String TAG = "WeightFragment";
+
+    ScaleActivity mThisActivity;
 
     Thread workerThread;
     byte[] readBuffer;
@@ -34,28 +41,74 @@ public class WeightActivity extends AppCompatActivity {
     int counter;
     volatile boolean stopWorker;
 
+
+    private long timeWhenStopped = 0;
+
+    TextView title;
+    TextView weightText;
+    ProgressBar weightProgressBar;
+    PausableChronometer chrono;
+
+    Button resetChrono;
+    Button startChrono;
+
+    ConstraintLayout loadingLayout;
+    ConstraintLayout weightingLayout;
+
     // Standard SerialPortService ID
     // this uuid identifies the type of service in the target device
     private UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weight);
 
-        context = WeightActivity.this;
-
-        String scaleAddress = getIntent().getStringExtra("EXTRA_DEVICE_ADDRESS");
-        Log.v(TAG, "device to connect is " + scaleAddress);
+    public WeightFragment() {
+        // Required empty public constructor
     }
 
 
-    private void connect2scale() throws IOException
-    {
-        mSocket = mDevice.createRfcommSocketToServiceRecord(uuid);
-        mSocket.connect();
-        mOutputStream = mSocket.getOutputStream();
-        mInputStream = mSocket.getInputStream();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view =  inflater.inflate(R.layout.fragment_weight, container, false);
+
+        mThisActivity = (ScaleActivity) getActivity();
+
+
+
+        weightProgressBar = (ProgressBar) view.findViewById(R.id.weightProgressBar);
+        weightText = (TextView) view.findViewById(R.id.weightText);
+        title = (TextView) view.findViewById(R.id.title);
+        chrono = (PausableChronometer) view.findViewById(R.id.chronometer);
+        resetChrono = (Button) view.findViewById(R.id.reset);
+        startChrono = (Button) view.findViewById(R.id.start);
+
+        weightingLayout = (ConstraintLayout) view.findViewById(R.id.weightingLayout);
+        loadingLayout = (ConstraintLayout) view.findViewById(R.id.loadingLayout);
+
+        weightProgressBar.setScaleY(8f);
+
+        startChrono.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                chrono.start();
+            }
+        });
+
+        resetChrono.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                chrono.reset();
+            }
+        });
+
+
+        /*
+         * Starts listening for serial data from BT!
+         */
+        beginListenForData();
+
+
+        return view;
     }
 
 
@@ -64,6 +117,11 @@ public class WeightActivity extends AppCompatActivity {
         final Gson gson = new Gson();
         final Handler handler = new Handler();
         final byte delimiter = 10; //This is the ASCII code for a newline character
+
+        BluetoothDevice mDevice = mThisActivity.getDevice();
+        BluetoothSocket mSocket = mThisActivity.getSocket();
+        OutputStream mOutputStream = mThisActivity.getOutputStream();
+        final InputStream mInputStream = mThisActivity.getInputStream();
 
         stopWorker = false;
         readBufferPosition = 0;
