@@ -51,6 +51,7 @@ public class WeightFragment extends Fragment {
 
     Button resetChrono;
     Button startChrono;
+    Button tare;
 
     ConstraintLayout loadingLayout;
     ConstraintLayout weightingLayout;
@@ -81,6 +82,7 @@ public class WeightFragment extends Fragment {
         chrono = (PausableChronometer) view.findViewById(R.id.chronometer);
         resetChrono = (Button) view.findViewById(R.id.reset);
         startChrono = (Button) view.findViewById(R.id.start);
+        tare = (Button) view.findViewById(R.id.tareButton);
 
         weightingLayout = (ConstraintLayout) view.findViewById(R.id.weightingLayout);
         loadingLayout = (ConstraintLayout) view.findViewById(R.id.loadingLayout);
@@ -101,12 +103,21 @@ public class WeightFragment extends Fragment {
             }
         });
 
+        tare.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                try {
+                    mThisActivity.getOutputStream().write("t".getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         /*
          * Starts listening for serial data from BT!
          */
         beginListenForData();
-
 
         return view;
     }
