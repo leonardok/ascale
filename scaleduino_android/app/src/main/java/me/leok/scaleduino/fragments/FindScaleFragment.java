@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.util.ArraySet;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -30,7 +32,7 @@ public class FindScaleFragment extends Fragment {
     private ListView scaleListView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    String deviceName = "ascale";
+    String scaleBluetoothName = "scale";
     ArrayList<BluetoothDevice> scalesList;
     private BluetoothDevicesAdapter mArrayAdapter;
 
@@ -121,6 +123,8 @@ public class FindScaleFragment extends Fragment {
 
         if (mBluetoothAdapter == null) {
             Log.v(TAG, "No bluetooth adapter available");
+            Toast.makeText(getContext(), "Failed to connect to scale. Make sure you selected a valid scale.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         if (!mBluetoothAdapter.isEnabled()) {
@@ -142,16 +146,21 @@ public class FindScaleFragment extends Fragment {
             @Override
             protected Void doInBackground(final Void... params) {
                 final Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
+                final Set<BluetoothDevice> scaleDevices = new ArraySet<BluetoothDevice>();
 
                 for (BluetoothDevice device : devices) {
-                    Log.v(TAG, "Found device: " + device.getUuids().length);
+                    Log.v(TAG, "Found device: " + device.getName());
+
+                    if (scaleBluetoothName.toString().equals(device.getName())) {
+                        scaleDevices.add(device);
+                    }
                 }
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mArrayAdapter.clear();
-                        mArrayAdapter.addAll(devices);
+                        mArrayAdapter.addAll(scaleDevices);
                         mArrayAdapter.notifyDataSetChanged();
 
                         mSwipeRefreshLayout.setRefreshing(false);

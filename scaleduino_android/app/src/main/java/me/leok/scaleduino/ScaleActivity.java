@@ -55,7 +55,7 @@ public class ScaleActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_find_scale_fragment);
+        setContentView(R.layout.activity_scale);
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout

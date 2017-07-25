@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-import me.leok.scaleduino.FindScaleActivity;
 import me.leok.scaleduino.R;
 import me.leok.scaleduino.ScaleActivity;
 

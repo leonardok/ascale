@@ -14,13 +14,9 @@
         <uses-permission android:name="android.permission.BLUETOOTH" />
         <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
-        <activity android:name=".MainActivity" />
-        <activity android:name=".WeightActivity" />
-        <activity android:name=".FindScaleActivity"></activity>
         <activity android:name=".ScaleActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
