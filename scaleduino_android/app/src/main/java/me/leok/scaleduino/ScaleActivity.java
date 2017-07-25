@@ -14,44 +14,7 @@ import me.leok.scaleduino.fragments.FindScaleFragment;
 
 public class ScaleActivity extends FragmentActivity {
 
-    private BluetoothDevice mDevice;
-    private BluetoothSocket mmSocket;
-    private OutputStream mOutputStream;
-    private InputStream mInputStream;
-
     public ScaleBluetoothSerial scale;
-
-    public BluetoothDevice getDevice() {
-        return mDevice;
-    }
-
-    public void setDevice(BluetoothDevice mDevice) {
-        this.mDevice = mDevice;
-    }
-
-    public BluetoothSocket getSocket() {
-        return mmSocket;
-    }
-
-    public void setSocket(BluetoothSocket mmSocket) {
-        this.mmSocket = mmSocket;
-    }
-
-    public OutputStream getOutputStream() {
-        return mOutputStream;
-    }
-
-    public void setOutputStream(OutputStream mOutputStream) {
-        this.mOutputStream = mOutputStream;
-    }
-
-    public InputStream getInputStream() {
-        return mInputStream;
-    }
-
-    public void setInputStream(InputStream mInputStream) {
-        this.mInputStream = mInputStream;
-    }
 
 
     @Override
@@ -80,14 +43,5 @@ public class ScaleActivity extends FragmentActivity {
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
         }
-    }
-
-    public void connect2scale() throws IOException
-    {
-        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-        mmSocket = mDevice.createRfcommSocketToServiceRecord(uuid);
-        mmSocket.connect();
-        mOutputStream = mmSocket.getOutputStream();
-        mInputStream = mmSocket.getInputStream();
     }
 }

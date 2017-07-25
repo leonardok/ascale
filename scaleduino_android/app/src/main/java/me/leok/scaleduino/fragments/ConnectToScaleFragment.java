@@ -21,13 +21,7 @@ import me.leok.scaleduino.ScaleActivity;
  */
 public class ConnectToScaleFragment extends Fragment {
 
-
     private static final String TAG = "ConnectToScaleFragment";
-
-    public ConnectToScaleFragment() {
-        // Required empty public constructor
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,7 +34,7 @@ public class ConnectToScaleFragment extends Fragment {
 
         new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Void doInBackground( final Void ... params ) {
+            protected Void doInBackground(final Void... params) {
                 // something you know that will take a few seconds
 
                 try {

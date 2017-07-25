@@ -15,17 +15,20 @@ import java.util.UUID;
 
 
 public class ScaleBluetoothSerial {
-    BluetoothDevice mDevice;
-    BluetoothSocket mSocket;
-    OutputStream mOutputStream;
-    InputStream mInputStream;
-
     private String TAG = "ScaleBluetoothSerial";
+
+    private BluetoothDevice mDevice;
+    private OutputStream mOutputStream;
+    private InputStream mInputStream;
+
     private boolean stopWorker;
     private int readBufferPosition;
     private byte[] readBuffer;
     private OnDataReceivedListener mOnDataReceivedListener;
 
+    /**
+     * Interface for listening to data received on the called side
+     */
     public interface OnDataReceivedListener {
         void onDataReceived(String data);
     }
@@ -34,15 +37,15 @@ public class ScaleBluetoothSerial {
         this.mOnDataReceivedListener = mOnDataReceivedListener;
     }
 
-
     public ScaleBluetoothSerial(BluetoothDevice mDevice) {
         this.mDevice = mDevice;
     }
 
     public void connect() throws IOException {
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-        mSocket = mDevice.createRfcommSocketToServiceRecord(uuid);
+        BluetoothSocket mSocket = mDevice.createRfcommSocketToServiceRecord(uuid);
         mSocket.connect();
+
         mOutputStream = mSocket.getOutputStream();
         mInputStream = mSocket.getInputStream();
     }
@@ -70,6 +73,7 @@ public class ScaleBluetoothSerial {
 
                         byte[] packetBytes = new byte[bytesAvailable];
                         mInputStream.read(packetBytes);
+
                         for (int i = 0; i < bytesAvailable; i++) {
                             byte b = packetBytes[i];
 

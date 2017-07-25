@@ -32,16 +32,6 @@ public class WeightFragment extends Fragment {
 
     ScaleActivity mThisActivity;
 
-    Thread workerThread;
-    byte[] readBuffer;
-    int readBufferPosition;
-    int counter;
-    volatile boolean stopWorker;
-
-
-    private long timeWhenStopped = 0;
-
-    TextView title;
     TextView weightText;
     ProgressBar weightProgressBar;
     PausableChronometer chrono;
@@ -50,59 +40,40 @@ public class WeightFragment extends Fragment {
     Button startChrono;
     Button tare;
 
-    ConstraintLayout loadingLayout;
-    ConstraintLayout weightingLayout;
-
-    // Standard SerialPortService ID
-    // this uuid identifies the type of service in the target device
-    private UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
-
-    public WeightFragment() {
-        // Required empty public constructor
-    }
-
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_weight, container, false);
+        View view = inflater.inflate(R.layout.fragment_weight, container, false);
 
         mThisActivity = (ScaleActivity) getActivity();
 
-
-
         weightProgressBar = (ProgressBar) view.findViewById(R.id.weightProgressBar);
         weightText = (TextView) view.findViewById(R.id.weightText);
-        title = (TextView) view.findViewById(R.id.title);
         chrono = (PausableChronometer) view.findViewById(R.id.chronometer);
         resetChrono = (Button) view.findViewById(R.id.reset);
         startChrono = (Button) view.findViewById(R.id.start);
         tare = (Button) view.findViewById(R.id.tareButton);
 
-        weightingLayout = (ConstraintLayout) view.findViewById(R.id.weightingLayout);
-        loadingLayout = (ConstraintLayout) view.findViewById(R.id.loadingLayout);
-
         weightProgressBar.setScaleY(8f);
 
-        startChrono.setOnClickListener(new Button.OnClickListener(){
+        startChrono.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 chrono.start();
             }
         });
 
-        resetChrono.setOnClickListener(new Button.OnClickListener(){
+        resetChrono.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 chrono.reset();
             }
         });
 
-        tare.setOnClickListener(new Button.OnClickListener(){
+        tare.setOnClickListener(new Button.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 try {
                     mThisActivity.scale.tare();
                 } catch (IOException e) {
@@ -126,8 +97,7 @@ public class WeightFragment extends Fragment {
 
                         try {
                             scaleData = gson.fromJson(data, ScaleData.class);
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             Log.w(TAG, "Error while deserializing JSON: " + e.toString());
                         }
 
@@ -140,75 +110,4 @@ public class WeightFragment extends Fragment {
 
         return view;
     }
-
-
-//    void beginListenForData()
-//    {
-//        final Gson gson = new Gson();
-//        final Handler handler = new Handler();
-//        final byte delimiter = 10; //This is the ASCII code for a newline character
-//
-//        BluetoothDevice mDevice = mThisActivity.getDevice();
-//        BluetoothSocket mSocket = mThisActivity.getSocket();
-//        OutputStream mOutputStream = mThisActivity.getOutputStream();
-//        final InputStream mInputStream = mThisActivity.getInputStream();
-//
-//        stopWorker = false;
-//        readBufferPosition = 0;
-//        readBuffer = new byte[1024];
-//        workerThread = new Thread(new Runnable()
-//        {
-//            public void run()
-//            {
-//                while(!Thread.currentThread().isInterrupted() && !stopWorker)
-//                {
-//                    try
-//                    {
-//                        int bytesAvailable = mInputStream.available();
-//                        if(bytesAvailable > 0)
-//                        {
-//                            byte[] packetBytes = new byte[bytesAvailable];
-//                            mInputStream.read(packetBytes);
-//                            for(int i=0;i<bytesAvailable;i++)
-//                            {
-//                                byte b = packetBytes[i];
-//                                if(b == delimiter)
-//                                {
-//                                    byte[] encodedBytes = new byte[readBufferPosition];
-//                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-//                                    final String data = new String(encodedBytes, "US-ASCII");
-//                                    readBufferPosition = 0;
-//
-//                                    handler.post(new Runnable()
-//                                    {
-//                                        public void run()
-//                                        {
-//                                            // Log.v(TAG, data.toString());
-//                                            try {
-//                                                ScaleData scaleData = gson.fromJson(data, ScaleData.class);
-//
-//                                                weightText.setText(String.format("%sg", String.format("%.2f", scaleData.weight)));
-//                                                weightProgressBar.setProgress((int) scaleData.weight);
-//                                            }
-//                                            catch (Exception e) {}
-//                                        }
-//                                    });
-//                                }
-//                                else
-//                                {
-//                                    readBuffer[readBufferPosition++] = b;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    catch (IOException ex)
-//                    {
-//                        stopWorker = true;
-//                    }
-//                }
-//            }
-//        });
-//
-//        workerThread.start();
-//    }
 }

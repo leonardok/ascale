@@ -28,13 +28,13 @@ import me.leok.scaleduino.adapters.BluetoothDevicesAdapter;
 
 public class FindScaleFragment extends Fragment {
     private static final String TAG = "FindScaleFragment";
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothDevice mDevice;
-    private ListView scaleListView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    String scaleBluetoothName = "scale";
-    ArrayList<BluetoothDevice> scalesList;
+    private BluetoothAdapter mBluetoothAdapter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private ListView scaleListView;
+
+    private String scaleBluetoothName = "scale";
+    private ArrayList<BluetoothDevice> scalesList;
     private BluetoothDevicesAdapter mArrayAdapter;
 
     @Override
